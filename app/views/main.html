@@ -1,0 +1,7 @@
+<div class="hero-unit">
+  <h1>Angular Toolkit</h1>
+</div>
+<div class="container" connectivity="{connect: 'onConnect()', disconnect: 'onDisconnect()'}">
+	<camera type="photo" ng-model="media" on-publish="publish()"></camera>
+	<img ng-src="{{media}}">
+</div>
