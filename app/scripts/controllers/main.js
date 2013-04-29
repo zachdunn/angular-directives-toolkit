@@ -4,7 +4,8 @@
   angular.module('angularToolkitApp').controller('MainCtrl', function($scope, $rootScope, $document) {
     $scope.init = function() {
       $document.title = 'AngularJS Toolkit';
-      return console.log('ONLINE: ' + $rootScope.online);
+      console.log('ONLINE: ' + $rootScope.online);
+      return $scope.photoFrame = 'http://buzzband.s3.amazonaws.com/photo_overlays/kiosk_106.png';
     };
     $scope.publish = function() {
       return console.log('Publishing media');

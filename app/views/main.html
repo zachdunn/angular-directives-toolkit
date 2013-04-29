@@ -2,6 +2,8 @@
   <h1>Angular Toolkit</h1>
 </div>
 <div class="container clearfix" connectivity="{connect: 'onConnect()', disconnect: 'onDisconnect()'}">
-	<camera type="photo" width="640" height="480" ng-model="media" publish="publish()"></camera>
-	<img ng-src="{{media}}">
+	<camera type="photo" width="640" height="480" ng-model="media" overlay-src="photoFrame" publish="publish()"></camera>
+	<div class="row bb-photo-output" ng-hide="!media">
+		<img ng-src="{{media}}" alt="Camera Snapshot">
+	</div>
 </div>

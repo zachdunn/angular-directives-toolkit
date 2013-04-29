@@ -4,12 +4,16 @@
   angular.module('angularToolkitApp').directive('camera', function($parse) {
     return {
       require: 'ngModel',
-      template: '<div class="bb-camera">\
-		<video id="bb-camera-feed" autoplay width="{{width}}" height="{{height}}" src="{{videoStream}}">Install Browser\'s latest version</video>\
-		<canvas id="bb-photo-canvas" width="{{width}}" height="{{height}}" style="display:none;"></canvas>\
-		<div class="row">\
-			<button class="btn" ng-click="takePicture()">Take Picture</button>\
-			<button class="btn" ng-click="publishCallback()">Publish</button>\
+      template: '<div class="bb-camera clearfix">\
+		<p ng-hide="isLoaded">Loading Camera...</p>\
+		<div class="bb-camera-stack" ng-hide="!isLoaded">\
+			<img class="bb-camera-overlay" ng-src="{{overlaySrc}}" width="{{width}}" height="{{height}}">\
+			<video id="bb-camera-feed" autoplay width="{{width}}" height="{{height}}" src="{{videoStream}}">Install Browser\'s latest version</video>\
+			<canvas id="bb-photo-canvas" width="{{width}}" height="{{height}}" style="display:none;"></canvas>\
+		</div>\
+		<div class="row bb-camera-controls" ng-hide="!isLoaded">\
+			<button class="btn bb-camera-take-btn" ng-click="takePicture()">Take Picture</button>\
+			<button class="btn bb-camera-publish-btn" ng-click="publishCallback()">Publish</button>\
 		</div>\
 	</div>',
       replace: true,
@@ -20,23 +24,53 @@
         media: '=ngModel',
         width: '@',
         height: '@',
-        overlaySrc: '@',
+        overlaySrc: '=',
         publishCallback: '&publish'
       },
       link: function($scope, element, $attrs, ngModel) {
-        var _this = this;
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
         window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
-        navigator.getUserMedia({
-          audio: false,
-          video: true
-        }, function(stream) {
-          return $scope.$apply(function() {
-            return $scope.videoStream = window.URL.createObjectURL(stream);
-          });
-        }, function(e) {
-          return console.log(e);
+        $scope.$watch('overlaySrc', function(newVal, oldVal) {
+          var preloader;
+          if ($scope.overlaySrc != null) {
+            $scope.isLoaded = false;
+            preloader = new Image();
+            preloader.crossOrigin = '';
+            preloader.src = newVal;
+            return preloader.onload = function() {
+              return $scope.$apply(function() {
+                return $scope.isLoaded = true;
+              });
+            };
+          } else {
+            return $scope.isLoaded = true;
+          }
         });
+        $scope.enableCamera = function() {
+          var _this = this;
+          return navigator.getUserMedia({
+            audio: false,
+            video: true
+          }, function(stream) {
+            return $scope.$apply(function() {
+              return $scope.videoStream = window.URL.createObjectURL(stream);
+            });
+          }, function(e) {
+            return console.log(e);
+          });
+        };
+        $scope.disableCamera = function() {
+          return navigator.getUserMedia({
+            audio: false,
+            video: true
+          }, function(stream) {
+            return $scope.$apply(function() {
+              return $scope.videoStream = "";
+            });
+          }, function(e) {
+            return console.log(e);
+          });
+        };
         $scope.takePicture = function() {
           var canvas, context;
           canvas = angular.element('#bb-photo-canvas')[0];
@@ -45,7 +79,9 @@
             context.drawImage(angular.element('#bb-camera-feed')[0], 0, 0, 640, 480);
             if ($scope.overlaySrc != null) {
               return $scope.addFrame(context, $scope.overlaySrc, function(image) {
-                return $scope.media = canvas.toDataURL();
+                return $scope.$apply(function() {
+                  return $scope.media = canvas.toDataURL();
+                });
               });
             } else {
               return $scope.media = canvas.toDataURL();
@@ -53,20 +89,18 @@
           }
         };
         $scope.addFrame = function(context, url, callback) {
-          var overlayFrame,
-            _this = this;
+          var overlay;
           if (callback == null) {
             callback = false;
           }
-          overlayFrame = new Image();
-          return overlayFrame = {
-            crossOrigin: '',
-            src: url,
-            onload: function() {
-              context.drawImage(overlayFrame, 0, 0, 640, 480);
-              if (callback) {
-                return callback(context);
-              }
+          overlay = new Image();
+          overlay.crossOrigin = '';
+          overlay.src = url;
+          return overlay.onload = function() {
+            console.log('Loaded');
+            context.drawImage(overlay, 0, 0, 640, 480);
+            if (callback) {
+              return callback(context);
             }
           };
         };
@@ -78,13 +112,15 @@
         return $scope.$watch('type', function() {
           switch ($scope.type) {
             case 'photo':
-              return console.log('Camera type: Photo');
+              console.log('Camera type: Photo');
+              return $scope.enableCamera();
             case 'gif':
               return console.log('Camera type: GIF');
             case 'video':
               return console.log('Camera type: Video');
             default:
-              return console.log('Camera type: Defaulting to photo');
+              console.log('Camera type: Defaulting to photo');
+              return $scope.enableCamera();
           }
         });
       }

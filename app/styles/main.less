@@ -1,12 +1,38 @@
 /* Will be compiled down to a single stylesheet with your sass files */
 
 .bb-camera{
-	text-align: center;
+	border-bottom:1px solid #CCC;
+	text-align:center;
+}
+.bb-camera-stack{
+	width:640px; height:480px;
+	margin:0 auto;
+	position:relative;
+	background:#EFEFEF;
+	padding:0;
+}
+.bb-camera-overlay{
+	position:absolute;
+	top:0; left:0;
+	z-index:5;
 }
 #bb-camera-feed{
-	background:#EFEFEF;
-	border:1px solid #CCC;
 	min-width:640px;
 	min-height:480px;
 }
+
+.bb-camera-controls{
+	text-align:center;
+	clear:both;
+	display:block;
+	padding:15px 0px;
+}
+
 #bb-photo-canvas{}
+
+.bb-photo-output{
+	clear:both;
+	display:block;
+	padding:30px;
+	text-align:center;
+}

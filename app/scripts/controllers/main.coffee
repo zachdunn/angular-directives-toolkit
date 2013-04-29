@@ -2,7 +2,7 @@
 
 angular.module('angularToolkitApp')
 .controller 'MainCtrl', ($scope, $rootScope, $document) ->
-	
+
 	#
 	# Initialize
 	#
@@ -10,7 +10,7 @@ angular.module('angularToolkitApp')
 	$scope.init = ->
 		$document.title = 'AngularJS Toolkit'
 		console.log 'ONLINE: ' + $rootScope.online
-	
+		$scope.photoFrame = 'http://buzzband.s3.amazonaws.com/photo_overlays/kiosk_106.png'
 	#
 	# Callback for media publishing
 	#
