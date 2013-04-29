@@ -5,25 +5,80 @@
     return {
       require: 'ngModel',
       template: '<div class="bb-camera">\
-  	<h1>{{title}}</h1>\
-  	<pre ng-hide="!debug">{{debug}}</pre>\
-  </div>',
+		<video id="bb-camera-feed" autoplay width="{{width}}" height="{{height}}" src="{{videoStream}}">Install Browser\'s latest version</video>\
+		<canvas id="bb-photo-canvas" width="{{width}}" height="{{height}}" style="display:none;"></canvas>\
+		<div class="row">\
+			<button class="btn" ng-click="takePicture()">Take Picture</button>\
+			<button class="btn" ng-click="publishCallback()">Publish</button>\
+		</div>\
+	</div>',
       replace: true,
       transclude: true,
       restrict: 'E',
       scope: {
         type: '@',
         media: '=ngModel',
-        publishCallback: '&onPublish'
+        width: '@',
+        height: '@',
+        overlaySrc: '@',
+        publishCallback: '&publish'
       },
       link: function($scope, element, $attrs, ngModel) {
-        $scope.title = "Camera";
-        console.log(navigator);
+        var _this = this;
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+        window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+        navigator.getUserMedia({
+          audio: false,
+          video: true
+        }, function(stream) {
+          return $scope.$apply(function() {
+            return $scope.videoStream = window.URL.createObjectURL(stream);
+          });
+        }, function(e) {
+          return console.log(e);
+        });
+        $scope.takePicture = function() {
+          var canvas, context;
+          canvas = angular.element('#bb-photo-canvas')[0];
+          if (canvas != null) {
+            context = canvas.getContext('2d');
+            context.drawImage(angular.element('#bb-camera-feed')[0], 0, 0, 640, 480);
+            if ($scope.overlaySrc != null) {
+              return $scope.addFrame(context, $scope.overlaySrc, function(image) {
+                return $scope.media = canvas.toDataURL();
+              });
+            } else {
+              return $scope.media = canvas.toDataURL();
+            }
+          }
+        };
+        $scope.addFrame = function(context, url, callback) {
+          var overlayFrame,
+            _this = this;
+          if (callback == null) {
+            callback = false;
+          }
+          overlayFrame = new Image();
+          return overlayFrame = {
+            crossOrigin: '',
+            src: url,
+            onload: function() {
+              context.drawImage(overlayFrame, 0, 0, 640, 480);
+              if (callback) {
+                return callback(context);
+              }
+            }
+          };
+        };
+        $scope.$watch('media', function(newVal) {
+          if (newVal != null) {
+            return $scope.packagedMedia = $scope.media.replace(/^data:image\/\w+;base64,/, "");
+          }
+        });
         return $scope.$watch('type', function() {
           switch ($scope.type) {
             case 'photo':
-              console.log('Camera type: Photo');
-              return $scope.publishCallback();
+              return console.log('Camera type: Photo');
             case 'gif':
               return console.log('Camera type: GIF');
             case 'video':

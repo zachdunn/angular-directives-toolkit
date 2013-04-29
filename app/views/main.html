@@ -1,7 +1,7 @@
 <div class="hero-unit">
   <h1>Angular Toolkit</h1>
 </div>
-<div class="container" connectivity="{connect: 'onConnect()', disconnect: 'onDisconnect()'}">
-	<camera type="photo" ng-model="media" on-publish="publish()"></camera>
+<div class="container clearfix" connectivity="{connect: 'onConnect()', disconnect: 'onDisconnect()'}">
+	<camera type="photo" width="640" height="480" ng-model="media" publish="publish()"></camera>
 	<img ng-src="{{media}}">
 </div>
