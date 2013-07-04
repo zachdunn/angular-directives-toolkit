@@ -5,7 +5,8 @@
     $scope.photoFrame = 'https://buzzband.s3.amazonaws.com/photo_overlays/kiosk_106.png';
     $scope.init = function() {
       $window.document.title = 'AngularJS Toolkit';
-      return console.log('ONLINE: ' + $rootScope.online);
+      console.log('ONLINE: ' + $rootScope.online);
+      return $scope.cameraActive = true;
     };
     $scope.publish = function() {
       return console.log('Publishing media');

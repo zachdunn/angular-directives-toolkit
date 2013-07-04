@@ -12,7 +12,7 @@ angular.module('angularToolkitApp')
   $scope.init = ->
     $window.document.title = 'AngularJS Toolkit'
     console.log 'ONLINE: ' + $rootScope.online
-
+    $scope.cameraActive = true
 
   #
   # Callback for media publishing
