@@ -15,10 +15,10 @@ angular.module('angularToolkitApp')
       </div>
       <img class="ng-camera-overlay" ng-hide="!overlaySrc" ng-src="{{overlaySrc}}" width="{{width}}" height="{{height}}">
       <video id="ng-camera-feed" autoplay width="{{width}}" height="{{height}}" src="{{videoStream}}">Install Browser\'s latest version</video>
-      <canvas id="ng-photo-canvas" width="{{width}}" height="{{height}}" ng-show="media"></canvas>
+      <canvas id="ng-photo-canvas" width="{{width}}" height="{{height}}" style="display:none;"></canvas>
     </div>
   </div>'
-  replace: true
+  replace: false
   transclude: true
   restrict: 'E'
   scope:
@@ -35,15 +35,14 @@ angular.module('angularToolkitApp')
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||	navigator.mozGetUserMedia || navigator.msGetUserMedia
     window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL
 
-    #
-    # Turn on camera
-    #
+    ###*
+    * @description Set mediastream source and notify camera
+    ###
     scope.enableCamera = ->
       navigator.getUserMedia
         audio: false
         video: true
       , (stream) ->
-        console.log stream
         scope.$apply ->
           scope.isLoaded = true
           scope.videoStream = window.URL.createObjectURL(stream)
@@ -52,9 +51,9 @@ angular.module('angularToolkitApp')
           scope.isLoaded = true
           scope.noCamera = true
 
-    #
-    # Turn off camera
-    #
+    ###*
+    * @description Disable mediastream source and notify camera
+    ###
     scope.disableCamera = ->
       navigator.getUserMedia
         audio: false
@@ -63,10 +62,9 @@ angular.module('angularToolkitApp')
           scope.$apply ->
             scope.videoStream = ""
 
-    #
-    # Capture video stream as photo
-    #
-
+    ###*
+    * @description Capture current state of video stream as photo
+    ###
     scope.takePicture = ->
       canvas = window.document.getElementById('ng-photo-canvas')
 
@@ -86,7 +84,6 @@ angular.module('angularToolkitApp')
       $timeout.cancel scope.countdownTimer if scope.countdownTimer
 
       # Start timer to photo shot
-
       scope.countdownTimer = $timeout ->
 
         scope.activeCountdown = false
@@ -102,7 +99,7 @@ angular.module('angularToolkitApp')
             scope.$apply ->
               scope.media = canvas.toDataURL('image/jpeg')
               scope.enabled = false
-            scope.captureCallback(scope.media) if scope.captureCallback?
+              scope.captureCallback(scope.media) if scope.captureCallback?
         else
           scope.media = canvas.toDataURL('image/jpeg') # Assign to ngModel
           scope.enabled = false # Turn off camera feed
@@ -122,28 +119,29 @@ angular.module('angularToolkitApp')
             scope.countdownText = nextTick
       , 1000
 
-    #
-    # Add overlay to canvas render
-    #
+    ###*
+    * @description Add overlay frame to canvas render
+    ###
     scope.addFrame = (context, url, callback = false) ->
       # Load returned overlay image and draw onto photo canvas
       overlay = new Image()
-      overlay.crossOrigin = ''
-      overlay.src = url
       overlay.onload = ->
         context.drawImage overlay, 0, 0, scope.width, scope.height
         callback(context) if callback
+      overlay.crossOrigin = ''
+      overlay.src = url
 
-    #
-    # Keep a packaged version of media ready
-    #
+    ###*
+    * @description Keeps a packaged version of media ready
+    * @param {Base64} newVal Prefix-stripped Base64 of of canvas image
+    ###
     scope.$watch 'media', (newVal) ->
       # Strip the Base64 prefix
       scope.packagedMedia = scope.media.replace /^data:image\/\w+;base64,/, "" if newVal?
 
-    #
-    # Preloader for overlay image
-    #
+    ###*
+    * @description Preloader for overlay image
+    ###
     scope.$watch 'overlaySrc', (newVal, oldVal) ->
       # If an overlay was provided
       if scope.overlaySrc?
@@ -159,27 +157,24 @@ angular.module('angularToolkitApp')
         # No frame. Skip it.
         scope.isLoaded = true
 
-    #
-    # Watch for when to turn on/off camera feed
-    #
+    ###*
+    * @description Watch for when to turn on/off camera feed
+    ###
     scope.$watch 'enabled', (newVal, oldVal) ->
       if newVal
         scope.enableCamera() if !oldVal # Turn on feed if actual change
       else
         scope.disableCamera() if oldVal? # Turn off feed if actual change
 
-    #
-    # Check type of camera
-    #
+    ###*
+    * @description Check format type of camera.
+    * @todo Future support for different media types (GIF, Video)
+    ###
     scope.$watch 'type', ->
       switch scope.type
         when 'photo'
-          console.log 'Camera type: Photo'
+          # Photo
           scope.enableCamera() if scope.enabled
-        when 'gif'
-          console.log 'Camera type: GIF'
-        when 'video'
-          console.log 'Camera type: Video'
         else
-          console.log 'Camera type: Defaulting to photo'
+          # Defaulting to photo
           scope.enableCamera() if scope.enabled

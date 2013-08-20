@@ -16,10 +16,10 @@
       </div>\
       <img class="ng-camera-overlay" ng-hide="!overlaySrc" ng-src="{{overlaySrc}}" width="{{width}}" height="{{height}}">\
       <video id="ng-camera-feed" autoplay width="{{width}}" height="{{height}}" src="{{videoStream}}">Install Browser\'s latest version</video>\
-      <canvas id="ng-photo-canvas" width="{{width}}" height="{{height}}" ng-show="media"></canvas>\
+      <canvas id="ng-photo-canvas" width="{{width}}" height="{{height}}" style="display:none;"></canvas>\
     </div>\
   </div>',
-      replace: true,
+      replace: false,
       transclude: true,
       restrict: 'E',
       scope: {
@@ -35,12 +35,15 @@
       link: function(scope, element, attrs, ngModel) {
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
         window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+        /**
+        * @description Set mediastream source and notify camera
+        */
+
         scope.enableCamera = function() {
           return navigator.getUserMedia({
             audio: false,
             video: true
           }, function(stream) {
-            console.log(stream);
             return scope.$apply(function() {
               scope.isLoaded = true;
               return scope.videoStream = window.URL.createObjectURL(stream);
@@ -52,6 +55,10 @@
             });
           });
         };
+        /**
+        * @description Disable mediastream source and notify camera
+        */
+
         scope.disableCamera = function() {
           return navigator.getUserMedia({
             audio: false,
@@ -62,6 +69,10 @@
             });
           });
         };
+        /**
+        * @description Capture current state of video stream as photo
+        */
+
         scope.takePicture = function() {
           var canvas, context, countdownTick, countdownTime;
           canvas = window.document.getElementById('ng-photo-canvas');
@@ -84,13 +95,13 @@
             context.drawImage(cameraFeed, 0, 0, scope.width, scope.height);
             if (scope.overlaySrc != null) {
               scope.addFrame(context, scope.overlaySrc, function(image) {
-                scope.$apply(function() {
+                return scope.$apply(function() {
                   scope.media = canvas.toDataURL('image/jpeg');
-                  return scope.enabled = false;
+                  scope.enabled = false;
+                  if (scope.captureCallback != null) {
+                    return scope.captureCallback(scope.media);
+                  }
                 });
-                if (scope.captureCallback != null) {
-                  return scope.captureCallback(scope.media);
-                }
               });
             } else {
               scope.media = canvas.toDataURL('image/jpeg');
@@ -114,26 +125,39 @@
             });
           }, 1000);
         };
+        /**
+        * @description Add overlay frame to canvas render
+        */
+
         scope.addFrame = function(context, url, callback) {
           var overlay;
           if (callback == null) {
             callback = false;
           }
           overlay = new Image();
-          overlay.crossOrigin = '';
-          overlay.src = url;
-          return overlay.onload = function() {
+          overlay.onload = function() {
             context.drawImage(overlay, 0, 0, scope.width, scope.height);
             if (callback) {
               return callback(context);
             }
           };
+          overlay.crossOrigin = '';
+          return overlay.src = url;
         };
+        /**
+        * @description Keeps a packaged version of media ready
+        * @param {Base64} newVal Prefix-stripped Base64 of of canvas image
+        */
+
         scope.$watch('media', function(newVal) {
           if (newVal != null) {
             return scope.packagedMedia = scope.media.replace(/^data:image\/\w+;base64,/, "");
           }
         });
+        /**
+        * @description Preloader for overlay image
+        */
+
         scope.$watch('overlaySrc', function(newVal, oldVal) {
           var preloader;
           if (scope.overlaySrc != null) {
@@ -150,6 +174,10 @@
             return scope.isLoaded = true;
           }
         });
+        /**
+        * @description Watch for when to turn on/off camera feed
+        */
+
         scope.$watch('enabled', function(newVal, oldVal) {
           if (newVal) {
             if (!oldVal) {
@@ -161,20 +189,19 @@
             }
           }
         });
+        /**
+        * @description Check format type of camera.
+        * @todo Future support for different media types (GIF, Video)
+        */
+
         return scope.$watch('type', function() {
           switch (scope.type) {
             case 'photo':
-              console.log('Camera type: Photo');
               if (scope.enabled) {
                 return scope.enableCamera();
               }
               break;
-            case 'gif':
-              return console.log('Camera type: GIF');
-            case 'video':
-              return console.log('Camera type: Video');
             default:
-              console.log('Camera type: Defaulting to photo');
               if (scope.enabled) {
                 return scope.enableCamera();
               }
