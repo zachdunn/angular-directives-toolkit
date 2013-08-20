@@ -14,9 +14,9 @@
       <div class="ng-camera-overlay-controls" ng-hide="hideUI">\
         <button class="btn ng-camera-take-btn" ng-click="takePicture()">Take Picture</button>\
       </div>\
-      <img class="ng-camera-overlay" ng-hide="!overlaySrc" ng-src="{{overlaySrc}}" width="{{width}}"       height="{{height}}">\
+      <img class="ng-camera-overlay" ng-hide="!overlaySrc" ng-src="{{overlaySrc}}" width="{{width}}" height="{{height}}">\
       <video id="ng-camera-feed" autoplay width="{{width}}" height="{{height}}" src="{{videoStream}}">Install Browser\'s latest version</video>\
-      <canvas id="ng-photo-canvas" width="{{width}}" height="{{height}}" style="display:none;"></canvas>\
+      <canvas id="ng-photo-canvas" width="{{width}}" height="{{height}}" ng-show="media"></canvas>\
     </div>\
   </div>',
       replace: true,
@@ -42,6 +42,7 @@
           }, function(stream) {
             console.log(stream);
             return scope.$apply(function() {
+              scope.isLoaded = true;
               return scope.videoStream = window.URL.createObjectURL(stream);
             });
           }, function(error) {
@@ -63,8 +64,8 @@
         };
         scope.takePicture = function() {
           var canvas, context, countdownTick, countdownTime;
-          canvas = angular.element('#ng-photo-canvas')[0];
-          if ((canvas != null) || canvas.length === 0) {
+          canvas = window.document.getElementById('ng-photo-canvas');
+          if (typeof canvas === "undefined") {
             return false;
           }
           countdownTime = scope.countdown != null ? parseInt(scope.countdown) * 1000 : 0;
@@ -77,8 +78,10 @@
             $timeout.cancel(scope.countdownTimer);
           }
           scope.countdownTimer = $timeout(function() {
+            var cameraFeed;
             scope.activeCountdown = false;
-            context.drawImage(angular.element('#ng-camera-feed')[0], 0, 0, scope.width, scope.height);
+            cameraFeed = window.document.getElementById('ng-camera-feed');
+            context.drawImage(cameraFeed, 0, 0, scope.width, scope.height);
             if (scope.overlaySrc != null) {
               scope.addFrame(context, scope.overlaySrc, function(image) {
                 scope.$apply(function() {

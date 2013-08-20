@@ -13,9 +13,9 @@ angular.module('angularToolkitApp')
       <div class="ng-camera-overlay-controls" ng-hide="hideUI">
         <button class="btn ng-camera-take-btn" ng-click="takePicture()">Take Picture</button>
       </div>
-      <img class="ng-camera-overlay" ng-hide="!overlaySrc" ng-src="{{overlaySrc}}" width="{{width}}"       height="{{height}}">
+      <img class="ng-camera-overlay" ng-hide="!overlaySrc" ng-src="{{overlaySrc}}" width="{{width}}" height="{{height}}">
       <video id="ng-camera-feed" autoplay width="{{width}}" height="{{height}}" src="{{videoStream}}">Install Browser\'s latest version</video>
-      <canvas id="ng-photo-canvas" width="{{width}}" height="{{height}}" style="display:none;"></canvas>
+      <canvas id="ng-photo-canvas" width="{{width}}" height="{{height}}" ng-show="media"></canvas>
     </div>
   </div>'
   replace: true
@@ -31,7 +31,6 @@ angular.module('angularToolkitApp')
     enabled: '='
     captureMessage: "@"
   link: (scope, element, attrs, ngModel) ->
-
     # Remap common references
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||	navigator.mozGetUserMedia || navigator.msGetUserMedia
     window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL
@@ -46,6 +45,7 @@ angular.module('angularToolkitApp')
       , (stream) ->
         console.log stream
         scope.$apply ->
+          scope.isLoaded = true
           scope.videoStream = window.URL.createObjectURL(stream)
       , (error) ->
         scope.$apply ->
@@ -68,10 +68,10 @@ angular.module('angularToolkitApp')
     #
 
     scope.takePicture = ->
-      canvas = angular.element('#ng-photo-canvas')[0]
+      canvas = window.document.getElementById('ng-photo-canvas')
 
       # Make sure there's a canvas to work with
-      return false if canvas? or canvas.length is 0
+      return false if typeof(canvas) is "undefined"
 
       # Get countdown time in seconds from attribute
       countdownTime = if scope.countdown? then parseInt(scope.countdown) * 1000 else 0
@@ -92,7 +92,8 @@ angular.module('angularToolkitApp')
         scope.activeCountdown = false
 
         # Draw current video feed to canvas (photo source)
-        context.drawImage angular.element('#ng-camera-feed')[0], 0, 0, scope.width, scope.height
+        cameraFeed = window.document.getElementById('ng-camera-feed')
+        context.drawImage cameraFeed, 0, 0, scope.width, scope.height
 
         # Add overlay if present
         if scope.overlaySrc?
@@ -101,9 +102,7 @@ angular.module('angularToolkitApp')
             scope.$apply ->
               scope.media = canvas.toDataURL('image/jpeg')
               scope.enabled = false
-
             scope.captureCallback(scope.media) if scope.captureCallback?
-
         else
           scope.media = canvas.toDataURL('image/jpeg') # Assign to ngModel
           scope.enabled = false # Turn off camera feed
@@ -113,7 +112,7 @@ angular.module('angularToolkitApp')
 
       # Countdown ticker until photo
       countdownTick = setInterval ->
-        scope.$apply () ->
+        scope.$apply ->
           nextTick = parseInt(scope.countdownText) - 1
           if nextTick is 0
             # Replace zero with better copy
