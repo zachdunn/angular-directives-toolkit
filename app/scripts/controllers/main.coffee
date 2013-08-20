@@ -3,7 +3,7 @@
 angular.module('angularToolkitApp')
 .controller 'MainCtrl', ($scope, $rootScope, $window) ->
 
-  $scope.photoFrame = 'https://buzzband.s3.amazonaws.com/photo_overlays/kiosk_106.png'
+  $scope.photoFrame = 'images/sample-frame.png'
 
   #
   # Initialize

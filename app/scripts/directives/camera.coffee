@@ -106,7 +106,7 @@ angular.module('angularToolkitApp')
               scope.captureCallback(scope.media) if scope.captureCallback?
           else
             scope.media = canvas.toDataURL('image/jpeg') # Assign to ngModel
-            scope.enabled = false # Turn off camera feed
+            #scope.enabled = false # Turn off camera feed
             scope.captureCallback(scope.media) if scope.captureCallback?
 
           scope.hideUI = false

@@ -106,7 +106,6 @@
                 });
               } else {
                 scope.media = canvas.toDataURL('image/jpeg');
-                scope.enabled = false;
                 if (scope.captureCallback != null) {
                   scope.captureCallback(scope.media);
                 }

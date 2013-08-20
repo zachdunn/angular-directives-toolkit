@@ -2,7 +2,7 @@
 (function() {
   'use strict';
   angular.module('angularToolkitApp').controller('MainCtrl', function($scope, $rootScope, $window) {
-    $scope.photoFrame = 'https://buzzband.s3.amazonaws.com/photo_overlays/kiosk_106.png';
+    $scope.photoFrame = 'images/sample-frame.png';
     $scope.init = function() {
       $window.document.title = 'AngularJS Toolkit';
       console.log('ONLINE: ' + $rootScope.online);
