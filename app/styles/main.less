@@ -1,38 +1,44 @@
-/* Will be compiled down to a single stylesheet with your sass files */
-
-.bb-camera{
-	border-bottom:1px solid #CCC;
-	text-align:center;
+.ng-camera{
+  border-bottom:1px solid #CCC;
+  text-align:center;
 }
-.bb-camera-stack{
-	width:640px; height:480px;
-	margin:0 auto;
-	position:relative;
-	background:#EFEFEF;
-	padding:0;
+.ng-camera-stack{
+  width:640px; height:480px;
+  margin:0 auto;
+  position:relative;
+  background:#EFEFEF;
+  padding:0;
 }
-.bb-camera-overlay{
-	position:absolute;
-	top:0; left:0;
-	z-index:5;
-}
-#bb-camera-feed{
-	min-width:640px;
-	min-height:480px;
+.ng-camera-overlay{
+  position:absolute;
+  top:0; left:0;
+  z-index:5;
 }
 
-.bb-camera-controls{
-	text-align:center;
-	clear:both;
-	display:block;
-	padding:15px 0px;
+.ng-camera-overlay-controls{
+  position:absolute;
+  top:0; right:10px;
+  z-index:10;
 }
 
-#bb-photo-canvas{}
+#ng-camera-feed{
+  min-width:640px;
+  min-height:480px;
+}
 
-.bb-photo-output{
-	clear:both;
-	display:block;
-	padding:30px;
-	text-align:center;
+.ng-camera-controls{
+  text-align:center;
+  clear:both;
+  display:block;
+  padding:15px 0px;
+}
+
+#ng-photo-canvas{}
+
+
+.ng-photo-output{
+  clear:both;
+  display:block;
+  padding:30px;
+  text-align:center;
 }

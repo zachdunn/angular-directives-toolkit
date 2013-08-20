@@ -2,8 +2,9 @@
   <h1>Angular Toolkit</h1>
 </div>
 <div class="container clearfix" connectivity="{connect: 'onConnect()', disconnect: 'onDisconnect()'}">
-    <ng-camera type="photo" enabled="cameraActive" width="1024" height="768" countdown="5" ng-model="media" overlay-src="photoFrame" capture="publish()" capture-message="SMILE!"/>
-	<div class="row bb-photo-output" ng-hide="!media">
-		<img ng-src="{{media}}" alt="Camera Snapshot">
-	</div>
+    <ng-camera type="photo" enabled="cameraActive" width="640" height="480" countdown="5" ng-model="media" overlay-src="photoFrame" capture="publish()" capture-message="SMILE!"></ng-camera>
+    <h2>Output</h2>
+    <div ng-show="media">
+        <img ng-src="{{media}}" alt="Camera Snapshot">
+    </div>
 </div>

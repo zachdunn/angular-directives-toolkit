@@ -1,9 +1,8 @@
-/* Will be compiled down to a single stylesheet with your sass files */
-.bb-camera {
+.ng-camera {
   border-bottom: 1px solid #CCC;
   text-align: center;
 }
-.bb-camera-stack {
+.ng-camera-stack {
   width: 640px;
   height: 480px;
   margin: 0 auto;
@@ -11,23 +10,29 @@
   background: #EFEFEF;
   padding: 0;
 }
-.bb-camera-overlay {
+.ng-camera-overlay {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 5;
 }
-#bb-camera-feed {
+.ng-camera-overlay-controls {
+  position: absolute;
+  top: 0;
+  right: 10px;
+  z-index: 10;
+}
+#ng-camera-feed {
   min-width: 640px;
   min-height: 480px;
 }
-.bb-camera-controls {
+.ng-camera-controls {
   text-align: center;
   clear: both;
   display: block;
   padding: 15px 0px;
 }
-.bb-photo-output {
+.ng-photo-output {
   clear: both;
   display: block;
   padding: 30px;
