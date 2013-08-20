@@ -11,12 +11,12 @@
       <div class="ng-camera-countdown" ng-show="activeCountdown">\
         <p class="tick">{{countdownText}}</p>\
       </div>\
-      <div class="ng-camera-overlay-controls" ng-hide="hideUI">\
-        <button class="btn ng-camera-take-btn" ng-click="takePicture()">Take Picture</button>\
-      </div>\
       <img class="ng-camera-overlay" ng-hide="!overlaySrc" ng-src="{{overlaySrc}}" width="{{width}}" height="{{height}}">\
       <video id="ng-camera-feed" autoplay width="{{width}}" height="{{height}}" src="{{videoStream}}">Install Browser\'s latest version</video>\
       <canvas id="ng-photo-canvas" width="{{width}}" height="{{height}}" style="display:none;"></canvas>\
+    </div>\
+    <div class="ng-camera-controls" ng-hide="hideUI">\
+      <button class="btn ng-camera-take-btn" ng-click="takePicture()">Take Picture</button>\
     </div>\
   </div>',
       replace: false,
@@ -78,57 +78,57 @@
         scope.takePicture = function() {
           var canvas, context, countdownTick, countdownTime;
           canvas = window.document.getElementById('ng-photo-canvas');
-          if (typeof canvas === "undefined") {
-            return false;
-          }
           countdownTime = scope.countdown != null ? parseInt(scope.countdown) * 1000 : 0;
-          if (countdownTime > 0) {
-            console.log('Counting down from ' + countdownTime);
-            scope.activeCountdown = true;
-            scope.hideUI = true;
-          }
-          context = canvas.getContext('2d');
-          if (scope.countdownTimer) {
-            $timeout.cancel(scope.countdownTimer);
-          }
-          scope.countdownTimer = $timeout(function() {
-            var cameraFeed;
-            scope.activeCountdown = false;
-            cameraFeed = window.document.getElementById('ng-camera-feed');
-            context.drawImage(cameraFeed, 0, 0, scope.width, scope.height);
-            if (scope.overlaySrc != null) {
-              scope.addFrame(context, scope.overlaySrc, function(image) {
-                return scope.$apply(function() {
-                  scope.media = canvas.toDataURL('image/jpeg');
-                  scope.enabled = false;
+          if (canvas != null) {
+            if (countdownTime > 0) {
+              console.log('Counting down from ' + countdownTime);
+              scope.activeCountdown = true;
+              scope.hideUI = true;
+            }
+            context = canvas.getContext('2d');
+            if (scope.countdownTimer) {
+              $timeout.cancel(scope.countdownTimer);
+            }
+            scope.countdownTimer = $timeout(function() {
+              var cameraFeed;
+              scope.activeCountdown = false;
+              cameraFeed = window.document.getElementById('ng-camera-feed');
+              context.drawImage(cameraFeed, 0, 0, scope.width, scope.height);
+              if (scope.overlaySrc != null) {
+                scope.addFrame(context, scope.overlaySrc, function(image) {
+                  scope.$apply(function() {
+                    scope.media = canvas.toDataURL('image/jpeg');
+                    return scope.enabled = false;
+                  });
                   if (scope.captureCallback != null) {
                     return scope.captureCallback(scope.media);
                   }
                 });
-              });
-            } else {
-              scope.media = canvas.toDataURL('image/jpeg');
-              scope.enabled = false;
-              if (scope.captureCallback != null) {
-                scope.captureCallback(scope.media);
-              }
-            }
-            scope.countdownText = parseInt(scope.countdown);
-            return scope.hideUI = false;
-          }, countdownTime);
-          scope.countdownText = parseInt(scope.countdown);
-          return countdownTick = setInterval(function() {
-            return scope.$apply(function() {
-              var nextTick;
-              nextTick = parseInt(scope.countdownText) - 1;
-              if (nextTick === 0) {
-                scope.countdownText = scope.captureMessage != null ? scope.captureMessage : 'GO!';
-                return clearInterval(countdownTick);
               } else {
-                return scope.countdownText = nextTick;
+                scope.media = canvas.toDataURL('image/jpeg');
+                scope.enabled = false;
+                if (scope.captureCallback != null) {
+                  scope.captureCallback(scope.media);
+                }
               }
-            });
-          }, 1000);
+              return scope.hideUI = false;
+            }, countdownTime + 1000);
+            scope.countdownText = parseInt(scope.countdown);
+            return countdownTick = setInterval(function() {
+              return scope.$apply(function() {
+                var nextTick;
+                nextTick = parseInt(scope.countdownText) - 1;
+                if (nextTick === 0) {
+                  scope.countdownText = scope.captureMessage != null ? scope.captureMessage : 'GO!';
+                  return clearInterval(countdownTick);
+                } else {
+                  return scope.countdownText = nextTick;
+                }
+              });
+            }, 1000);
+          } else {
+            return false;
+          }
         };
         /**
         * @description Add overlay frame to canvas render

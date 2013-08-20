@@ -10,12 +10,12 @@ angular.module('angularToolkitApp')
       <div class="ng-camera-countdown" ng-show="activeCountdown">
         <p class="tick">{{countdownText}}</p>
       </div>
-      <div class="ng-camera-overlay-controls" ng-hide="hideUI">
-        <button class="btn ng-camera-take-btn" ng-click="takePicture()">Take Picture</button>
-      </div>
       <img class="ng-camera-overlay" ng-hide="!overlaySrc" ng-src="{{overlaySrc}}" width="{{width}}" height="{{height}}">
       <video id="ng-camera-feed" autoplay width="{{width}}" height="{{height}}" src="{{videoStream}}">Install Browser\'s latest version</video>
       <canvas id="ng-photo-canvas" width="{{width}}" height="{{height}}" style="display:none;"></canvas>
+    </div>
+    <div class="ng-camera-controls" ng-hide="hideUI">
+      <button class="btn ng-camera-take-btn" ng-click="takePicture()">Take Picture</button>
     </div>
   </div>'
   replace: false
@@ -72,61 +72,62 @@ angular.module('angularToolkitApp')
     scope.takePicture = ->
       canvas = window.document.getElementById('ng-photo-canvas')
 
-      # Make sure there's a canvas to work with
-      return false if typeof(canvas) is "undefined"
-
       # Get countdown time in seconds from attribute
       countdownTime = if scope.countdown? then parseInt(scope.countdown) * 1000 else 0
 
-      # Hide UI if countdown occurs
-      if countdownTime > 0
-        console.log 'Counting down from ' + countdownTime
-        scope.activeCountdown = true
-        scope.hideUI = true
+      # Make sure there's a canvas to work with
+      if canvas?
 
-      context = canvas.getContext('2d')
+        # Hide UI if countdown occurs
+        if countdownTime > 0
+          console.log 'Counting down from ' + countdownTime
+          scope.activeCountdown = true
+          scope.hideUI = true
 
-      $timeout.cancel scope.countdownTimer if scope.countdownTimer
+        context = canvas.getContext('2d')
 
-      # Start timer to photo shot
-      scope.countdownTimer = $timeout ->
-        scope.activeCountdown = false
+        $timeout.cancel scope.countdownTimer if scope.countdownTimer
 
-        # Draw current video feed to canvas (photo source)
-        cameraFeed = window.document.getElementById('ng-camera-feed')
-        context.drawImage cameraFeed, 0, 0, scope.width, scope.height
+        # Start timer to photo shot
+        scope.countdownTimer = $timeout ->
+          scope.activeCountdown = false
 
-        # Add overlay if present
-        if scope.overlaySrc?
-          scope.addFrame context, scope.overlaySrc, (image) ->
-            # Wait for overlay image to load before making dataURL
-            scope.$apply ->
-              scope.media = canvas.toDataURL('image/jpeg')
-              scope.enabled = false
+          # Draw current video feed to canvas (photo source)
+          cameraFeed = window.document.getElementById('ng-camera-feed')
+          context.drawImage cameraFeed, 0, 0, scope.width, scope.height
+
+          # Add overlay if present
+          if scope.overlaySrc?
+            scope.addFrame context, scope.overlaySrc, (image) ->
+              # Wait for overlay image to load before making dataURL
+              scope.$apply ->
+                scope.media = canvas.toDataURL('image/jpeg')
+                scope.enabled = false
               scope.captureCallback(scope.media) if scope.captureCallback?
-        else
-          scope.media = canvas.toDataURL('image/jpeg') # Assign to ngModel
-          scope.enabled = false # Turn off camera feed
-          scope.captureCallback(scope.media) if scope.captureCallback?
+          else
+            scope.media = canvas.toDataURL('image/jpeg') # Assign to ngModel
+            scope.enabled = false # Turn off camera feed
+            scope.captureCallback(scope.media) if scope.captureCallback?
+
+          scope.hideUI = false
+        , countdownTime + 1000 # Add extra second for final message
 
         scope.countdownText = parseInt(scope.countdown)
 
-        scope.hideUI = false
-      , countdownTime
-
-      scope.countdownText = parseInt(scope.countdown)
-
-      # Countdown ticker until photo
-      countdownTick = setInterval ->
-        scope.$apply ->
-          nextTick = parseInt(scope.countdownText) - 1
-          if nextTick is 0
-            # Replace zero with better copy
-            scope.countdownText = if scope.captureMessage? then scope.captureMessage else 'GO!'
-            clearInterval countdownTick # End countdown on last tick
-          else
-            scope.countdownText = nextTick
-      , 1000
+        # Countdown ticker until photo
+        countdownTick = setInterval ->
+          scope.$apply ->
+            nextTick = parseInt(scope.countdownText) - 1
+            if nextTick is 0
+              # Replace zero with better copy
+              scope.countdownText = if scope.captureMessage? then scope.captureMessage else 'GO!'
+              clearInterval countdownTick # End countdown on last tick
+            else
+              scope.countdownText = nextTick
+        , 1000
+      else
+        # We have no canvas to work with
+        return false
 
     ###*
     * @description Add overlay frame to canvas render
