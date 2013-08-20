@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('angularToolkitApp', [])
+angular.module('angularToolkitApp', ['omr.directives'])
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
