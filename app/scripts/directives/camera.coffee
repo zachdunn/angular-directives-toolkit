@@ -27,12 +27,16 @@ angular.module('angularToolkitApp')
     width: '@'
     height: '@'
     overlaySrc: '='
+    countdown: '@'
     captureCallback: '&capture'
     enabled: '='
     captureMessage: "@"
   link: (scope, element, attrs, ngModel) ->
+
+    scope.activeCountdown = false
+
     # Remap common references
-    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||	navigator.mozGetUserMedia || navigator.msGetUserMedia
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia
     window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL
 
     ###*
@@ -76,6 +80,7 @@ angular.module('angularToolkitApp')
 
       # Hide UI if countdown occurs
       if countdownTime > 0
+        console.log 'Counting down from ' + countdownTime
         scope.activeCountdown = true
         scope.hideUI = true
 
@@ -85,7 +90,6 @@ angular.module('angularToolkitApp')
 
       # Start timer to photo shot
       scope.countdownTimer = $timeout ->
-
         scope.activeCountdown = false
 
         # Draw current video feed to canvas (photo source)
@@ -105,7 +109,12 @@ angular.module('angularToolkitApp')
           scope.enabled = false # Turn off camera feed
           scope.captureCallback(scope.media) if scope.captureCallback?
 
+        scope.countdownText = parseInt(scope.countdown)
+
         scope.hideUI = false
+      , countdownTime
+
+      scope.countdownText = parseInt(scope.countdown)
 
       # Countdown ticker until photo
       countdownTick = setInterval ->
@@ -121,6 +130,8 @@ angular.module('angularToolkitApp')
 
     ###*
     * @description Add overlay frame to canvas render
+    * @param {Object} context Reference to target canvas context
+
     ###
     scope.addFrame = (context, url, callback = false) ->
       # Load returned overlay image and draw onto photo canvas

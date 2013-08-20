@@ -28,11 +28,13 @@
         width: '@',
         height: '@',
         overlaySrc: '=',
+        countdown: '@',
         captureCallback: '&capture',
         enabled: '=',
         captureMessage: "@"
       },
       link: function(scope, element, attrs, ngModel) {
+        scope.activeCountdown = false;
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
         window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
         /**
@@ -81,6 +83,7 @@
           }
           countdownTime = scope.countdown != null ? parseInt(scope.countdown) * 1000 : 0;
           if (countdownTime > 0) {
+            console.log('Counting down from ' + countdownTime);
             scope.activeCountdown = true;
             scope.hideUI = true;
           }
@@ -110,8 +113,10 @@
                 scope.captureCallback(scope.media);
               }
             }
+            scope.countdownText = parseInt(scope.countdown);
             return scope.hideUI = false;
-          });
+          }, countdownTime);
+          scope.countdownText = parseInt(scope.countdown);
           return countdownTick = setInterval(function() {
             return scope.$apply(function() {
               var nextTick;
@@ -127,6 +132,7 @@
         };
         /**
         * @description Add overlay frame to canvas render
+        * @param {Object} context Reference to target canvas context
         */
 
         scope.addFrame = function(context, url, callback) {

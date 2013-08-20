@@ -24,6 +24,7 @@ angular.module('angularToolkitApp')
   #
   # Connectivity Events
   #
+
   $scope.onDisconnect = ->
     console.log 'Disconnect event'
 
